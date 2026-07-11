@@ -1,0 +1,7 @@
+# Dependencies for Dominic's satellite pipeline (ml/detect_satellite.py).
+# Kept separate from the backend/API deps — the ML stack is heavy and only
+# needed to regenerate overlays + detections.json, not to serve them.
+#   python ml/detect_satellite.py            # detect + overlays + JSON
+#   python ml/detect_satellite.py --ingest   # also upsert rows into perigee.db
+ultralytics            # YOLOv8 (pulls in torch)
+opencv-python-headless # cv2 imread/rectangle/putText, no GUI libs on servers
