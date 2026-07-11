@@ -21,6 +21,9 @@ export const fetchTrends = (storeId) =>
 
 export const fetchJets = (storeId) => request(`/api/jets?store_id=${storeId}`)
 
+export const fetchSupply = (storeId) =>
+  request(`/api/supply?store_id=${storeId}`)
+
 export const fetchEdgar = (storeId) => request(`/api/edgar?store_id=${storeId}`)
 
 export const generateNarrative = (storeId) =>

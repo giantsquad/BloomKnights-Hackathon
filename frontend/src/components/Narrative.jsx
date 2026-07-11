@@ -53,8 +53,8 @@ export default function Narrative({ storeId }) {
 
       {!report && !loading && !error && (
         <p className="narrative-hint">
-          Fuses satellite, search trends, jet activity, and the EDGAR timeline
-          into a written thesis with receipts.
+          Fuses satellite imagery, search trends, supply-chain arrivals, and
+          the EDGAR timeline into a written thesis with receipts.
         </p>
       )}
     </div>

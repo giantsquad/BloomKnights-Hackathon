@@ -9,7 +9,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from database import get_conn, init_db
+
 from routes import edgar, imports, jets, narrative, satellite, score, trends
+
 from schemas import Store
 
 app = FastAPI(title="Perigee API")

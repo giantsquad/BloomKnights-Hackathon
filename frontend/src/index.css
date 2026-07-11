@@ -1,27 +1,30 @@
-/* Perigee — dark terminal theme. Committed to dark on purpose:
-   this is an alt-data terminal, not a marketing site. */
+/* Perigee — flat light theme on the "Orange Drip" palette.
+   #051821 navy · #1A4645 deep teal · #266867 teal · #F58800 orange · #F8BC24 amber
+   Flat on purpose: no shadows, no gradients, no glows. */
 
 :root {
-  --bg: #0b0e14;
-  --bg-panel: #11151f;
-  --bg-inset: #0d1019;
-  --border: #1f2533;
-  --border-strong: #2c3447;
-  --text: #9aa4b8;
-  --text-h: #e8ecf4;
-  --text-dim: #5c6578;
-  --accent: #4fd1a5;       /* signal green */
-  --accent-dim: rgba(79, 209, 165, 0.14);
-  --amber: #f0b429;        /* flags / spikes */
-  --amber-dim: rgba(240, 180, 41, 0.14);
-  --red: #ef6a6a;
-  --blue: #6aa6ef;
+  --navy: #051821;
+  --teal-deep: #1a4645;
+  --teal: #266867;
+  --orange: #f58800;
+  --amber: #f8bc24;
+
+  --bg: #ffffff;
+  --card: #ecefef;
+  --card-dark: #051821;
+  --border: #dbe1e1;
+  --text: #3e5457;
+  --text-muted: #7b8b8d;
+  --text-h: #051821;
+
+  --radius: 16px;
+  --radius-sm: 8px;
 
   --sans: 'Segoe UI', system-ui, Roboto, sans-serif;
   --mono: ui-monospace, 'Cascadia Code', Consolas, monospace;
 
   font: 15px/1.5 var(--sans);
-  color-scheme: dark;
+  color-scheme: light;
   color: var(--text);
   background: var(--bg);
   -webkit-font-smoothing: antialiased;
@@ -33,15 +36,13 @@
 
 body {
   margin: 0;
-  background:
-    radial-gradient(1100px 500px at 70% -10%, rgba(79, 209, 165, 0.05), transparent),
-    var(--bg);
+  background: var(--bg);
   min-height: 100svh;
 }
 
 h1, h2, h3 {
   color: var(--text-h);
-  font-weight: 600;
+  font-weight: 700;
   margin: 0;
 }
 
@@ -52,8 +53,9 @@ code {
 }
 
 a {
-  color: var(--accent);
+  color: var(--teal);
   text-decoration: none;
+  font-weight: 600;
 }
 a:hover {
   text-decoration: underline;
