@@ -1,3 +1,5 @@
+# quick comment for commit fix
+
 # Dependencies for the Vercel Python serverless function (api/index.py).
 # Vercel invokes the ASGI app directly, so no uvicorn needed here.
 # For local dev, use backend/requirements.txt instead.
