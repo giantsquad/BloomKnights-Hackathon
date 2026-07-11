@@ -120,7 +120,7 @@ CREATE TABLE IF NOT EXISTS meta (
 # Bump this whenever the seed data or schema changes. A mismatch with the
 # version stamped in `meta` makes init_db() drop everything and reseed — this
 # is the ONLY way production Turso ever picks up new seed data.
-SEED_VERSION = "2026-07-11.3"
+SEED_VERSION = "2026-07-11.4"
 
 # Drop order matters on engines that enforce FKs: children before parents.
 _TABLES = [
@@ -132,11 +132,11 @@ _TABLES = [
 # Real companies / CIKs so the EDGAR links resolve; the activity numbers are
 # demo placeholders until the real pipelines land.
 
-# Hero tier — the 3 fully-instrumented stores (IDs 1-3). These are the only
-# stores with satellite/imports/trends/shipments/filings seed data; populate.py
-# treats HERO_IDS = {1, 2, 3} and the lite tier picks up from ID 4 (LITE_TIER
-# below). Do NOT add more hero stores here without renumbering the lite tier —
-# their IDs must not overlap.
+# Hero tier — stores with full satellite/imports/trends/shipments/filings seed
+# data live at IDs 1-3 (see the signal dicts below, which are keyed 1-3, and
+# populate.py's HERO_IDS = {1, 2, 3}). Extra city stores can be added here with
+# any contiguous IDs; the lite tier auto-numbers itself above the last hero ID
+# (see LITE_TIER), so growing this list never collides with the lite companies.
 
 STORES = [
     {
@@ -247,43 +247,46 @@ STORES = [
 ]
 
 # ---- Lite-tier companies (Trends + EDGAR only, no satellite/imports) -------
-# IDs 4-25, continuing from the existing hero tier (1=Walmart, 2=Home Depot,
-# 3=Target). CIKs pulled from SEC's real ticker->CIK mapping, all 22 matched
-# cleanly, zero misses. Company names lightly cleaned from raw SEC filer names.
+# Company rows only — no satellite_snapshots / import_meta / import_points, so
+# get_satellite()/get_imports() 404 for them (expected); only get_trends() and
+# get_edgar() apply. CIKs pulled from SEC's real ticker->CIK mapping.
 #
-# These rows go into STORES alongside the existing 3. No satellite_snapshots
-# or import_meta/import_points rows exist for these IDs (that's the whole
-# point of "lite tier") -- get_satellite()/get_imports() will 404 for them,
-# which is expected. Only get_trends()/get_edgar() should be called for these.
+# Store IDs are assigned DYNAMICALLY just below this list — always starting one
+# past the last hero store — so the hero tier can grow (more cities) without
+# ever colliding with these. Do NOT hardcode "id" here.
 #
-# lat/lon left as None here -- stores.lat/lon is currently NOT NULL in the
-# schema, so either (a) make those columns nullable, or (b) fill with HQ
-# coordinates if Sameer's leaderboard wants map pins. Confirm with him first.
+# lat/lon seed as 0 (no map pin) since stores.lat/lon is NOT NULL; fill with HQ
+# coordinates later if the leaderboard wants map pins.
 
 LITE_TIER = [
-    {"id": 4, "company": "Costco Wholesale Corporation", "ticker": "COST", "cik": "0000909832"},
-    {"id": 5, "company": "Lowe's Companies, Inc.", "ticker": "LOW", "cik": "0000060667"},
-    {"id": 6, "company": "The TJX Companies, Inc.", "ticker": "TJX", "cik": "0000109198"},
-    {"id": 7, "company": "CVS Health Corporation", "ticker": "CVS", "cik": "0000064803"},
-    {"id": 8, "company": "The Kroger Co.", "ticker": "KR", "cik": "0000056873"},
-    {"id": 9, "company": "Walgreens Boots Alliance, Inc.", "ticker": "WBA", "cik": "0001618921"},
-    {"id": 10, "company": "Best Buy Co., Inc.", "ticker": "BBY", "cik": "0000764478"},
-    {"id": 11, "company": "Dollar General Corporation", "ticker": "DG", "cik": "0000029534"},
-    {"id": 12, "company": "Dollar Tree, Inc.", "ticker": "DLTR", "cik": "0000935703"},
-    {"id": 13, "company": "Ross Stores, Inc.", "ticker": "ROST", "cik": "0000745732"},
-    {"id": 14, "company": "Kohl's Corporation", "ticker": "KSS", "cik": "0000885639"},
-    {"id": 15, "company": "Macy's, Inc.", "ticker": "M", "cik": "0000794367"},
-    {"id": 16, "company": "Nordstrom, Inc.", "ticker": "JWN", "cik": "0000072333"},
-    {"id": 17, "company": "AutoZone, Inc.", "ticker": "AZO", "cik": "0000866787"},
-    {"id": 18, "company": "O'Reilly Automotive, Inc.", "ticker": "ORLY", "cik": "0000898173"},
-    {"id": 19, "company": "Tractor Supply Company", "ticker": "TSCO", "cik": "0000916365"},
-    {"id": 20, "company": "Ulta Beauty, Inc.", "ticker": "ULTA", "cik": "0001403568"},
-    {"id": 21, "company": "Starbucks Corporation", "ticker": "SBUX", "cik": "0000829224"},
-    {"id": 22, "company": "McDonald's Corporation", "ticker": "MCD", "cik": "0000063908"},
-    {"id": 23, "company": "Chipotle Mexican Grill, Inc.", "ticker": "CMG", "cik": "0001058090"},
-    {"id": 24, "company": "BJ's Wholesale Club Holdings, Inc.", "ticker": "BJ", "cik": "0001531152"},
-    {"id": 25, "company": "Albertsons Companies, Inc.", "ticker": "ACI", "cik": "0001646972"},
+    {"company": "Costco Wholesale Corporation", "ticker": "COST", "cik": "0000909832"},
+    {"company": "Lowe's Companies, Inc.", "ticker": "LOW", "cik": "0000060667"},
+    {"company": "The TJX Companies, Inc.", "ticker": "TJX", "cik": "0000109198"},
+    {"company": "CVS Health Corporation", "ticker": "CVS", "cik": "0000064803"},
+    {"company": "The Kroger Co.", "ticker": "KR", "cik": "0000056873"},
+    {"company": "Walgreens Boots Alliance, Inc.", "ticker": "WBA", "cik": "0001618921"},
+    {"company": "Best Buy Co., Inc.", "ticker": "BBY", "cik": "0000764478"},
+    {"company": "Dollar General Corporation", "ticker": "DG", "cik": "0000029534"},
+    {"company": "Dollar Tree, Inc.", "ticker": "DLTR", "cik": "0000935703"},
+    {"company": "Ross Stores, Inc.", "ticker": "ROST", "cik": "0000745732"},
+    {"company": "Kohl's Corporation", "ticker": "KSS", "cik": "0000885639"},
+    {"company": "Macy's, Inc.", "ticker": "M", "cik": "0000794367"},
+    {"company": "Nordstrom, Inc.", "ticker": "JWN", "cik": "0000072333"},
+    {"company": "AutoZone, Inc.", "ticker": "AZO", "cik": "0000866787"},
+    {"company": "O'Reilly Automotive, Inc.", "ticker": "ORLY", "cik": "0000898173"},
+    {"company": "Tractor Supply Company", "ticker": "TSCO", "cik": "0000916365"},
+    {"company": "Ulta Beauty, Inc.", "ticker": "ULTA", "cik": "0001403568"},
+    {"company": "Starbucks Corporation", "ticker": "SBUX", "cik": "0000829224"},
+    {"company": "McDonald's Corporation", "ticker": "MCD", "cik": "0000063908"},
+    {"company": "Chipotle Mexican Grill, Inc.", "ticker": "CMG", "cik": "0001058090"},
+    {"company": "BJ's Wholesale Club Holdings, Inc.", "ticker": "BJ", "cik": "0001531152"},
+    {"company": "Albertsons Companies, Inc.", "ticker": "ACI", "cik": "0001646972"},
 ]
+
+# Assign lite IDs above the hero block so hero growth never collides with them.
+_lite_base = max(s["id"] for s in STORES) + 1
+for _offset, _lite in enumerate(LITE_TIER):
+    _lite["id"] = _lite_base + _offset
 
 # car_count values mirror ml/detections.json (YOLOv8 output). The before/after
 # jump is the on-the-ground activity signal: Walmart 20->102, HD 37->59,
