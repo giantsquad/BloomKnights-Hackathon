@@ -172,7 +172,6 @@ STORES = [
         "lat": 25.7617,
         "lon": -80.1918,
     },
-<<<<<<< Updated upstream
 
     # ---------------- Houston ----------------
 
@@ -245,8 +244,6 @@ STORES = [
         "lat": 34.0522,
         "lon": -118.2437,
     },
-=======
->>>>>>> Stashed changes
 ]
 
 # ---- Lite-tier companies (Trends + EDGAR only, no satellite/imports) -------
