@@ -19,8 +19,11 @@ the store, not a delta. Writes persist across backend restarts; run reset()
 to wipe back to the demo seed.
 """
 
+import json
+
 from database import DB_PATH, get_conn, init_db
 from schemas import Filing, ImportPoint, JetEvent, TrendPoint
+
 
 
 def replace_satellite(store_id, kind, captured_at, image_url, car_count=0):
@@ -114,6 +117,25 @@ def replace_jets(store_id, events):
                  e.distance_miles, e.timestamp, e.lat, e.lon)
                 for e in validated
             ],
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def replace_supply(store_id, carrier, ship_name, port, arrived_at, items):
+    """Replace the latest-shipment record for a store.
+
+    items: list of dicts matching schemas.ShipmentItem — item, containers.
+    """
+    validated = [ShipmentItem(**i).model_dump() for i in items]
+    init_db()
+    conn = get_conn()
+    try:
+        conn.execute("DELETE FROM shipments WHERE store_id = ?", (store_id,))
+        conn.execute(
+            "INSERT INTO shipments VALUES (?, ?, ?, ?, ?, ?)",
+            (store_id, carrier, ship_name, port, arrived_at, json.dumps(validated)),
         )
         conn.commit()
     finally:
