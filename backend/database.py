@@ -171,46 +171,10 @@ STORES = [
         "lon": -80.1918,
     },
 
-    # ---------------- Jacksonville ----------------
-
-    {
-        "id": 4,
-        "name": "Walmart Supercenter #1284",
-        "company": "Walmart Inc.",
-        "ticker": "WMT",
-        "cik": "0000104169",
-        "city": "Jacksonville",
-        "state": "FL",
-        "lat": 30.3322,
-        "lon": -81.6557,
-    },
-    {
-        "id": 5,
-        "name": "Home Depot #417",
-        "company": "The Home Depot, Inc.",
-        "ticker": "HD",
-        "cik": "0000354950",
-        "city": "Jacksonville",
-        "state": "FL",
-        "lat": 30.3322,
-        "lon": -81.6557,
-    },
-    {
-        "id": 6,
-        "name": "Target T-1416",
-        "company": "Target Corporation",
-        "ticker": "TGT",
-        "cik": "0000027419",
-        "city": "Jacksonville",
-        "state": "FL",
-        "lat": 30.3322,
-        "lon": -81.6557,
-    },
-
     # ---------------- Houston ----------------
 
     {
-        "id": 7,
+        "id": 4,
         "name": "Walmart Supercenter #2517",
         "company": "Walmart Inc.",
         "ticker": "WMT",
@@ -221,7 +185,7 @@ STORES = [
         "lon": -95.3698,
     },
     {
-        "id": 8,
+        "id": 5,
         "name": "Home Depot #246",
         "company": "The Home Depot, Inc.",
         "ticker": "HD",
@@ -232,7 +196,7 @@ STORES = [
         "lon": -95.3698,
     },
     {
-        "id": 9,
+        "id": 6,
         "name": "Target T-918",
         "company": "Target Corporation",
         "ticker": "TGT",
@@ -241,6 +205,42 @@ STORES = [
         "state": "TX",
         "lat": 29.7604,
         "lon": -95.3698,
+    },
+
+    # ---------------- Los Angeles ----------------
+
+    {
+        "id": 7,
+        "name": "Walmart Supercenter #3472",
+        "company": "Walmart Inc.",
+        "ticker": "WMT",
+        "cik": "0000104169",
+        "city": "Los Angeles",
+        "state": "CA",
+        "lat": 34.0522,
+        "lon": -118.2437,
+    },
+    {
+        "id": 8,
+        "name": "Home Depot #6620",
+        "company": "The Home Depot, Inc.",
+        "ticker": "HD",
+        "cik": "0000354950",
+        "city": "Los Angeles",
+        "state": "CA",
+        "lat": 34.0522,
+        "lon": -118.2437,
+    },
+    {
+        "id": 9,
+        "name": "Target T-1438",
+        "company": "Target Corporation",
+        "ticker": "TGT",
+        "cik": "0000027419",
+        "city": "Los Angeles",
+        "state": "CA",
+        "lat": 34.0522,
+        "lon": -118.2437,
     },
 ]
 
@@ -313,15 +313,20 @@ IMPORTS = {
 }
 
 TRENDS = {
-    1: ("walmart orlando", "US-FL",
+    # ---------------- Miami ----------------
+    1: ("walmart miami", "US-FL",
         [("2026-04-19", 42), ("2026-04-26", 45), ("2026-05-03", 41), ("2026-05-10", 44),
          ("2026-05-17", 47), ("2026-05-24", 43), ("2026-05-31", 46), ("2026-06-07", 52),
          ("2026-06-14", 61), ("2026-06-21", 78), ("2026-06-28", 100), ("2026-07-05", 91)]),
-    2: ("home depot miami", "US-FL",
+
+    # ---------------- Houston ----------------
+    2: ("home depot houston", "US-TX",
         [("2026-04-19", 55), ("2026-04-26", 53), ("2026-05-03", 57), ("2026-05-10", 54),
          ("2026-05-17", 58), ("2026-05-24", 56), ("2026-05-31", 60), ("2026-06-07", 66),
          ("2026-06-14", 74), ("2026-06-21", 88), ("2026-06-28", 100), ("2026-07-05", 95)]),
-    3: ("target tampa", "US-FL",
+
+    # ---------------- Los Angeles ----------------
+    3: ("target los angeles", "US-CA",
         [("2026-04-19", 71), ("2026-04-26", 69), ("2026-05-03", 73), ("2026-05-10", 70),
          ("2026-05-17", 66), ("2026-05-24", 62), ("2026-05-31", 58), ("2026-06-07", 55),
          ("2026-06-14", 51), ("2026-06-21", 48), ("2026-06-28", 45), ("2026-07-05", 44)]),
@@ -331,12 +336,17 @@ TRENDS = {
 # recent ship to arrive, its port, and what's on it (container counts).
 # Historical pre-market alt-data (like imports/satellite) — not live.
 SHIPMENTS = {
-    1: ("Maersk", "Maersk Kensington", "JAXPORT — Jacksonville, FL", "2026-07-08",
-        [("General merchandise", 64), ("Grocery & consumables", 38), ("Seasonal & outdoor", 21)]),
-    2: ("MSC", "MSC Bianca", "PortMiami — Miami, FL", "2026-07-09",
-        [("Building materials", 52), ("Appliances", 27), ("Lawn & garden", 18)]),
-    3: ("Evergreen", "Ever Lucent", "Port Tampa Bay — Tampa, FL", "2026-07-05",
-        [("Apparel", 33), ("Home goods", 29), ("Electronics", 12)]),
+    # ---------------- Miami ----------------
+    1: ("Maersk", "Maersk Kensington", "PortMiami — Miami, FL", "2026-07-08",
+        [("General merchandise", 64), ("Consumer goods", 38), ("Seasonal & outdoor", 21)]),
+
+    # ---------------- Houston ----------------
+    2: ("MSC", "MSC Bianca", "Port Houston — Houston, TX", "2026-07-09",
+        [("Building materials", 52), ("Appliances", 27), ("Industrial goods", 18)]),
+
+    # ---------------- Los Angeles ----------------
+    3: ("Evergreen", "Ever Lucent", "Port of Los Angeles — Los Angeles, CA", "2026-07-05",
+        [("Apparel", 33), ("Electronics", 29), ("Home goods", 12)]),
 }
 
 # signal_date = when our leading indicator (the import surge) crossed threshold.
