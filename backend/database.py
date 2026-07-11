@@ -108,21 +108,115 @@ CREATE TABLE IF NOT EXISTS scores (
 # Real companies / CIKs so the EDGAR links resolve; the activity numbers are
 # demo placeholders until the real pipelines land.
 
+# Three major cities with ports are Miami, Jacksonville, and Houston.
+
 STORES = [
+    # ---------------- Miami ----------------
+
     {
-        "id": 1, "name": "Walmart Supercenter #943", "company": "Walmart Inc.",
-        "ticker": "WMT", "cik": "0000104169",
-        "city": "Orlando", "state": "FL", "lat": 28.4812, "lon": -81.4622,
+        "id": 1,
+        "name": "Walmart Supercenter #943",
+        "company": "Walmart Inc.",
+        "ticker": "WMT",
+        "cik": "0000104169",
+        "city": "Miami",
+        "state": "FL",
+        "lat": 25.7617,
+        "lon": -80.1918,
     },
     {
-        "id": 2, "name": "Home Depot #6348", "company": "The Home Depot, Inc.",
-        "ticker": "HD", "cik": "0000354950",
-        "city": "Miami", "state": "FL", "lat": 25.7743, "lon": -80.3200,
+        "id": 2,
+        "name": "Home Depot #6348",
+        "company": "The Home Depot, Inc.",
+        "ticker": "HD",
+        "cik": "0000354950",
+        "city": "Miami",
+        "state": "FL",
+        "lat": 25.7617,
+        "lon": -80.1918,
     },
     {
-        "id": 3, "name": "Target T-2075", "company": "Target Corporation",
-        "ticker": "TGT", "cik": "0000027419",
-        "city": "Tampa", "state": "FL", "lat": 27.9506, "lon": -82.4572,
+        "id": 3,
+        "name": "Target T-2075",
+        "company": "Target Corporation",
+        "ticker": "TGT",
+        "cik": "0000027419",
+        "city": "Miami",
+        "state": "FL",
+        "lat": 25.7617,
+        "lon": -80.1918,
+    },
+
+    # ---------------- Jacksonville ----------------
+
+    {
+        "id": 4,
+        "name": "Walmart Supercenter #1284",
+        "company": "Walmart Inc.",
+        "ticker": "WMT",
+        "cik": "0000104169",
+        "city": "Jacksonville",
+        "state": "FL",
+        "lat": 30.3322,
+        "lon": -81.6557,
+    },
+    {
+        "id": 5,
+        "name": "Home Depot #417",
+        "company": "The Home Depot, Inc.",
+        "ticker": "HD",
+        "cik": "0000354950",
+        "city": "Jacksonville",
+        "state": "FL",
+        "lat": 30.3322,
+        "lon": -81.6557,
+    },
+    {
+        "id": 6,
+        "name": "Target T-1416",
+        "company": "Target Corporation",
+        "ticker": "TGT",
+        "cik": "0000027419",
+        "city": "Jacksonville",
+        "state": "FL",
+        "lat": 30.3322,
+        "lon": -81.6557,
+    },
+
+    # ---------------- Houston ----------------
+
+    {
+        "id": 7,
+        "name": "Walmart Supercenter #2517",
+        "company": "Walmart Inc.",
+        "ticker": "WMT",
+        "cik": "0000104169",
+        "city": "Houston",
+        "state": "TX",
+        "lat": 29.7604,
+        "lon": -95.3698,
+    },
+    {
+        "id": 8,
+        "name": "Home Depot #246",
+        "company": "The Home Depot, Inc.",
+        "ticker": "HD",
+        "cik": "0000354950",
+        "city": "Houston",
+        "state": "TX",
+        "lat": 29.7604,
+        "lon": -95.3698,
+    },
+    {
+        "id": 9,
+        "name": "Target T-918",
+        "company": "Target Corporation",
+        "ticker": "TGT",
+        "cik": "0000027419",
+        "city": "Houston",
+        "state": "TX",
+        "lat": 29.7604,
+        "lon": -95.3698,
     },
 ]
 
