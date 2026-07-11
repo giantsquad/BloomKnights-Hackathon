@@ -6,6 +6,7 @@ rows with real pipeline output as their pieces come online; the shapes here
 match schemas.py exactly.
 """
 
+import json
 import os
 import sqlite3
 import tempfile
@@ -64,6 +65,15 @@ CREATE TABLE IF NOT EXISTS jet_events (
     timestamp TEXT NOT NULL,
     lat REAL NOT NULL,
     lon REAL NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS shipments (
+    store_id INTEGER PRIMARY KEY REFERENCES stores(id),
+    carrier TEXT NOT NULL,
+    ship_name TEXT NOT NULL,
+    port TEXT NOT NULL,
+    arrived_at TEXT NOT NULL,
+    inventory_json TEXT NOT NULL DEFAULT '[]'
 );
 
 CREATE TABLE IF NOT EXISTS filings (
@@ -135,6 +145,17 @@ JETS = {
     2: [("N723HD", "Home Depot Flight Ops", "landing", "KMIA — Miami Intl",
          7.1, "2026-06-27T16:40:00Z", 25.7959, -80.2870)],
     3: [],
+}
+
+# Latest inbound shipment per store: carrier the retailer uses, the most
+# recent ship to arrive, its port, and what's on it (container counts).
+SHIPMENTS = {
+    1: ("Maersk", "Maersk Kensington", "JAXPORT — Jacksonville, FL", "2026-07-08",
+        [("General merchandise", 64), ("Grocery & consumables", 38), ("Seasonal & outdoor", 21)]),
+    2: ("MSC", "MSC Bianca", "PortMiami — Miami, FL", "2026-07-09",
+        [("Building materials", 52), ("Appliances", 27), ("Lawn & garden", 18)]),
+    3: ("Evergreen", "Ever Lucent", "Port Tampa Bay — Tampa, FL", "2026-07-05",
+        [("Apparel", 33), ("Home goods", 29), ("Electronics", 12)]),
 }
 
 FILINGS = {
@@ -216,6 +237,12 @@ def init_db() -> None:
                 "INSERT INTO jet_events (store_id, tail_number, operator, event_type, airport,"
                 " distance_miles, timestamp, lat, lon) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 [(store_id, *e) for e in events],
+            )
+        for store_id, (carrier, ship, port, arrived, items) in SHIPMENTS.items():
+            conn.execute(
+                "INSERT INTO shipments VALUES (?, ?, ?, ?, ?, ?)",
+                (store_id, carrier, ship, port, arrived,
+                 json.dumps([{"item": i, "containers": c} for i, c in items])),
             )
         for store_id, data in FILINGS.items():
             conn.execute("INSERT INTO signals VALUES (?, ?)", (store_id, data["signal_date"]))

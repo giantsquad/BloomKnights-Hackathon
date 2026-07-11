@@ -9,7 +9,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from database import get_conn, init_db
-from routes import edgar, jets, narrative, satellite, trends
+from routes import edgar, jets, narrative, satellite, supply, trends
 from schemas import Store
 
 app = FastAPI(title="Perigee API")
@@ -52,5 +52,6 @@ def list_stores():
 app.include_router(satellite.router)
 app.include_router(trends.router)
 app.include_router(jets.router)
+app.include_router(supply.router)
 app.include_router(edgar.router)
 app.include_router(narrative.router)

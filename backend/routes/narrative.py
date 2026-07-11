@@ -15,6 +15,7 @@ from database import get_conn
 from routes.edgar import get_edgar
 from routes.jets import get_jets
 from routes.satellite import get_satellite
+from routes.supply import get_supply
 from routes.trends import get_trends
 from schemas import NarrativeRequest, NarrativeResponse
 from fusion import compute_activity_score
@@ -44,6 +45,9 @@ Google Search Trends ("{query}", {region}):
 Corporate jet activity (ADS-B):
 {jet_lines}
 
+Supply chain (latest inbound cargo ship):
+{supply_lines}
+
 SEC EDGAR:
 - Our combined signal fired: {signal_date} (day 0)
 - Filings after signal: {filing_lines}
@@ -62,11 +66,17 @@ def _build_payload(store_id: int) -> dict:
     if store is None:
         raise HTTPException(404, f"Unknown store {store_id}")
 
+    try:
+        supply = get_supply(store_id)
+    except HTTPException:
+        supply = None  # supply data is optional; the thesis still works without it
+
     return {
         "store": dict(store),
         "satellite": get_satellite(store_id),
         "trends": get_trends(store_id),
         "jets": get_jets(store_id),
+        "supply": supply,
         "edgar": get_edgar(store_id),
     }
 
@@ -82,13 +92,23 @@ def _render_prompt(p: dict) -> str:
     trend_tail = ", ".join(
         f"{pt.date}: {pt.interest}" for pt in trends.points[-4:]
     )
+    supply = p["supply"]
+    if supply is not None:
+        inventory = ", ".join(f"{i.item}: {i.containers} containers" for i in supply.items)
+        supply_lines = (
+            f"- {supply.ship_name} ({supply.carrier}) arrived {supply.arrived_at} "
+            f"at {supply.port}\n- On board: {inventory} "
+            f"({supply.total_containers} containers total)"
+        )
+    else:
+        supply_lines = "- No shipment data in window"
     return PROMPT_TEMPLATE.format(
         store_name=p["store"]["name"], company=p["store"]["company"],
         ticker=p["store"]["ticker"], city=p["store"]["city"], state=p["store"]["state"],
         before_date=sat.before.captured_at, after_date=sat.after.captured_at,
         query=trends.query, region=trends.region,
         trend_tail=trend_tail, spike=trends.spike_detected,
-        jet_lines=jet_lines, signal_date=edgar.signal_date,
+        jet_lines=jet_lines, supply_lines=supply_lines, signal_date=edgar.signal_date,
         filing_lines=filing_lines, lead_days=edgar.lead_days,
     )
 
@@ -123,6 +143,14 @@ def _fallback_thesis(p: dict) -> str:
             f"logged a {e.event_type} at {e.airport}, {e.distance_miles} miles from the "
             f"site, on {e.timestamp[:10]}."
         )
+    supply = p["supply"]
+    if supply is not None:
+        parts.append(
+            f"On the supply side, {supply.ship_name} ({supply.carrier}) docked at "
+            f"{supply.port} on {supply.arrived_at} carrying {supply.total_containers} "
+            f"containers for the retailer — inbound inventory consistent with the "
+            f"activity the other signals show."
+        )
     parts.append(
         f"The combined signal fired on {edgar.signal_date}; the first related filing "
         f"({edgar.filings[0].form_type}) hit EDGAR {edgar.lead_days} days later — the "
@@ -151,6 +179,8 @@ def generate_narrative(req: NarrativeRequest):
         sources.insert(1, "trends")
     if payload["jets"].events:
         sources.insert(-1, "jets")
+    if payload["supply"] is not None:
+        sources.insert(-1, "supply")
 
     api_key = os.environ.get("GEMINI_API_KEY")
     thesis = None

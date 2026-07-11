@@ -69,6 +69,23 @@ class JetsResponse(BaseModel):
     proximity_flag: bool
 
 
+# ---- /api/supply -----------------------------------------------------------
+
+class ShipmentItem(BaseModel):
+    item: str        # inventory category, e.g. "General merchandise"
+    containers: int  # container count for that category
+
+
+class SupplyResponse(BaseModel):
+    store_id: int
+    carrier: str      # shipping company the retailer uses
+    ship_name: str    # latest ship to come in
+    port: str         # where it docked
+    arrived_at: str   # ISO date
+    items: list[ShipmentItem]
+    total_containers: int
+
+
 # ---- /api/edgar ------------------------------------------------------------
 
 class Filing(BaseModel):
