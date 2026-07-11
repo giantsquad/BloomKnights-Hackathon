@@ -120,7 +120,7 @@ CREATE TABLE IF NOT EXISTS meta (
 # Bump this whenever the seed data or schema changes. A mismatch with the
 # version stamped in `meta` makes init_db() drop everything and reseed — this
 # is the ONLY way production Turso ever picks up new seed data.
-SEED_VERSION = "2026-07-11.2"
+SEED_VERSION = "2026-07-11.3"
 
 # Drop order matters on engines that enforce FKs: children before parents.
 _TABLES = [
@@ -132,11 +132,13 @@ _TABLES = [
 # Real companies / CIKs so the EDGAR links resolve; the activity numbers are
 # demo placeholders until the real pipelines land.
 
-# Three major cities with ports are Miami, Jacksonville, and Houston.
+# Hero tier — the 3 fully-instrumented stores (IDs 1-3). These are the only
+# stores with satellite/imports/trends/shipments/filings seed data; populate.py
+# treats HERO_IDS = {1, 2, 3} and the lite tier picks up from ID 4 (LITE_TIER
+# below). Do NOT add more hero stores here without renumbering the lite tier —
+# their IDs must not overlap.
 
 STORES = [
-    # ---------------- Miami ----------------
-
     {
         "id": 1,
         "name": "Walmart Supercenter #943",
@@ -170,6 +172,7 @@ STORES = [
         "lat": 25.7617,
         "lon": -80.1918,
     },
+<<<<<<< Updated upstream
 
     # ---------------- Houston ----------------
 
@@ -242,6 +245,8 @@ STORES = [
         "lat": 34.0522,
         "lon": -118.2437,
     },
+=======
+>>>>>>> Stashed changes
 ]
 
 # ---- Lite-tier companies (Trends + EDGAR only, no satellite/imports) -------
