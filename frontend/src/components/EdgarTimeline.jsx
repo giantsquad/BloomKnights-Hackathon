@@ -20,6 +20,11 @@ export default function EdgarTimeline({ data }) {
             {data.company} · CIK {data.cik}
           </small>
         </span>
+        {data.source === 'live' && (
+          <span className="live-chip" style={{ marginLeft: 'auto' }}>
+            Live SEC feed
+          </span>
+        )}
       </div>
 
       <div className="timeline-track">

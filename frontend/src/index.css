@@ -1,33 +1,42 @@
-/* Perigee — flat light theme on the "Orange Drip" palette.
-   #051821 navy · #1A4645 deep teal · #266867 teal · #F58800 orange · #F8BC24 amber
-   Flat on purpose: no shadows, no gradients, no glows. */
+/* Perigee — dark terminal theme, Vercel/Next.js design language.
+   Pure black canvas, hairline #1f1f1f borders, Geist + Geist Mono,
+   one warm accent (signal orange) + green for live/positive reads. */
 
 :root {
-  --navy: #051821;
-  --teal-deep: #1a4645;
-  --teal: #266867;
-  --orange: #f58800;
-  --amber: #f8bc24;
+  /* palette */
+  --bg: #000000;
+  --surface: #0a0a0a;
+  --surface-2: #111111;
+  --border: #1f1f1f;
+  --border-hover: #333333;
 
-  --bg: #ffffff;
-  --card: #ecefef;
-  --card-dark: #051821;
-  --border: #dbe1e1;
-  --text: #3e5457;
-  --text-muted: #7b8b8d;
-  --text-h: #051821;
+  --text-h: #ededed;
+  --text: #a1a1a1;
+  --text-muted: #666666;
 
-  --radius: 16px;
+  --accent: #f58800;        /* signal orange — the brand */
+  --accent-soft: rgba(245, 136, 0, 0.12);
+  --green: #00ca51;
+  --green-soft: rgba(0, 202, 81, 0.12);
+  --red: #ff4d4d;
+  --red-soft: rgba(255, 77, 77, 0.1);
+  --blue: #3291ff;
+
+  --radius: 12px;
   --radius-sm: 8px;
 
-  --sans: 'Segoe UI', system-ui, Roboto, sans-serif;
-  --mono: ui-monospace, 'Cascadia Code', Consolas, monospace;
+  --sans: 'Geist', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono: 'Geist Mono', ui-monospace, 'Cascadia Code', Consolas, monospace;
 
-  font: 15px/1.5 var(--sans);
-  color-scheme: light;
+  /* motion */
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  font: 15px/1.55 var(--sans);
+  color-scheme: dark;
   color: var(--text);
   background: var(--bg);
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 * {
@@ -40,25 +49,32 @@ body {
   min-height: 100svh;
 }
 
+::selection {
+  background: var(--accent);
+  color: #000;
+}
+
 h1, h2, h3 {
   color: var(--text-h);
   font-weight: 700;
+  letter-spacing: -0.02em;
   margin: 0;
 }
 
 code {
   font-family: var(--mono);
-  font-size: 0.9em;
+  font-size: 0.88em;
   color: var(--text-h);
 }
 
 a {
-  color: var(--teal);
+  color: var(--text-h);
   text-decoration: none;
-  font-weight: 600;
+  font-weight: 500;
+  transition: color 0.15s var(--ease);
 }
 a:hover {
-  text-decoration: underline;
+  color: var(--blue);
 }
 
 button {
@@ -68,4 +84,26 @@ button {
 
 select {
   font: inherit;
+}
+
+/* thin dark scrollbars, terminal feel */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: #262626;
+  border-radius: 5px;
+  border: 2px solid var(--bg);
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

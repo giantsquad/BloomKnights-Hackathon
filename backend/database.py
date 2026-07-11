@@ -1,9 +1,17 @@
-"""SQLite connection + schema init + demo seed data.
+"""SQLite/Turso connection + schema init + versioned seed data.
 
-perigee.db is gitignored and recreated at runtime, so it's always safe to
-delete the file and restart to get a clean seed. Teammates replace the seed
-rows with real pipeline output as their pieces come online; the shapes here
-match schemas.py exactly.
+HOW SEEDING WORKS (read this before touching seed data):
+The same code drives two databases — a local SQLite file for dev and hosted
+Turso in production (Vercel). Locally you can just delete perigee.db, but
+nobody can delete Turso from here, so reseeding is driven by SEED_VERSION:
+init_db() stamps the version into a `meta` table, and whenever the code's
+SEED_VERSION differs from the stamped one it DROPS every table and reseeds.
+
+    >>> Changed any seed data or schema below?  BUMP SEED_VERSION.  <<<
+
+api/index.py calls init_db() on every Vercel cold start, so bumping the
+version + deploying migrates production automatically — no manual steps,
+no stale placeholder data lingering in Turso.
 """
 
 import json
@@ -102,7 +110,23 @@ CREATE TABLE IF NOT EXISTS scores (
     interpretation TEXT NOT NULL,
     computed_at TEXT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS meta (
+    key TEXT PRIMARY KEY,
+    value TEXT NOT NULL
+);
 """
+
+# Bump this whenever the seed data or schema changes. A mismatch with the
+# version stamped in `meta` makes init_db() drop everything and reseed — this
+# is the ONLY way production Turso ever picks up new seed data.
+SEED_VERSION = "2026-07-11.2"
+
+# Drop order matters on engines that enforce FKs: children before parents.
+_TABLES = [
+    "scores", "signals", "filings", "shipments", "trend_points", "trend_meta",
+    "import_points", "import_meta", "satellite_snapshots", "stores", "meta",
+]
 
 # ---- Demo seed data ---------------------------------------------------------
 # Real companies / CIKs so the EDGAR links resolve; the activity numbers are
@@ -365,12 +389,36 @@ def get_conn():
     return conn
 
 
+def _seed_version(conn) -> str | None:
+    try:
+        row = conn.execute(
+            "SELECT value FROM meta WHERE key = 'seed_version'"
+        ).fetchone()
+        return row["value"] if row else None
+    except Exception:
+        return None  # meta table doesn't exist yet (pre-versioning database)
+
+
+def wipe(conn) -> None:
+    """Drop every Perigee table. Works on local SQLite AND Turso — this is how
+    a stale production seed gets cleared (ingest.reset() uses it too)."""
+    for table in _TABLES:
+        conn.execute(f"DROP TABLE IF EXISTS {table}")
+    conn.commit()
+
+
 def init_db() -> None:
     conn = get_conn()
     try:
         conn.executescript(SCHEMA)
-        if conn.execute("SELECT COUNT(*) FROM stores").fetchone()[0] > 0:
-            return
+        stamped = _seed_version(conn)
+        populated = conn.execute("SELECT COUNT(*) FROM stores").fetchone()[0] > 0
+        if populated and stamped == SEED_VERSION:
+            return  # up to date — normal warm path
+        if populated:
+            # Stale seed (old placeholder data, e.g. in Turso) — rebuild.
+            wipe(conn)
+            conn.executescript(SCHEMA)
         for s in STORES:
             conn.execute(
                 "INSERT INTO stores VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
@@ -420,6 +468,10 @@ def init_db() -> None:
                 " VALUES (?, ?, ?, ?, ?)",
                 [(store_id, *f) for f in data["filings"]],
             )
+        conn.execute(
+            "INSERT INTO meta (key, value) VALUES ('seed_version', ?)",
+            (SEED_VERSION,),
+        )
         conn.commit()
     finally:
         conn.close()

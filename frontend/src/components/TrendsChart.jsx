@@ -28,6 +28,14 @@ export default function TrendsChart({ data }) {
         {data.spike_detected && (
           <span className="spike-chip">▲ spike {data.spike_date}</span>
         )}
+        {data.source === 'live' && (
+          <span
+            className="live-chip"
+            style={data.spike_detected ? undefined : { marginLeft: 'auto' }}
+          >
+            Live
+          </span>
+        )}
       </div>
       <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Search interest over time">
         {[0, 25, 50, 75, 100].map((v) => (

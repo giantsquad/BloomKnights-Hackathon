@@ -164,6 +164,15 @@ def write_score(store_id, score, confidence, import_mag, satellite_mag,
 
 
 def reset():
-    """Wipe everything back to the demo seed (deletes perigee.db, reseeds)."""
+    """Wipe everything back to the demo seed. Works on BOTH backends:
+    drops all tables through the active connection (so it reaches Turso when
+    TURSO_* env vars are set) and also removes the local SQLite file."""
+    from database import wipe, get_conn
+
+    conn = get_conn()
+    try:
+        wipe(conn)
+    finally:
+        conn.close()
     DB_PATH.unlink(missing_ok=True)
     init_db()
