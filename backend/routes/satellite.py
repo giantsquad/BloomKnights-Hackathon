@@ -1,15 +1,13 @@
-"""/api/satellite — serves the satellite detection output (Dominic's pipeline).
+"""/api/satellite — serves the before/after satellite imagery (Dominic's pipeline).
 
-Until the real YOLO pipeline writes into satellite_snapshots, this serves the
-demo seed rows. The response shape is final either way.
+Until the real NAIP images are wired in, this serves the demo seed rows. The
+response shape is final either way.
 """
-
-import json
 
 from fastapi import APIRouter, HTTPException
 
 from database import get_conn
-from schemas import BoundingBox, SatelliteResponse, SatelliteSnapshot
+from schemas import SatelliteResponse, SatelliteSnapshot
 
 router = APIRouter()
 
@@ -18,8 +16,6 @@ def _snapshot(row) -> SatelliteSnapshot:
     return SatelliteSnapshot(
         captured_at=row["captured_at"],
         image_url=row["image_url"],
-        vehicle_count=row["vehicle_count"],
-        boxes=[BoundingBox(**b) for b in json.loads(row["boxes_json"])],
     )
 
 
@@ -38,8 +34,8 @@ def get_satellite(store_id: int):
     if "before" not in by_kind or "after" not in by_kind:
         raise HTTPException(404, f"No satellite data for store {store_id}")
 
-    before, after = _snapshot(by_kind["before"]), _snapshot(by_kind["after"])
-    delta = (after.vehicle_count - before.vehicle_count) / before.vehicle_count * 100
     return SatelliteResponse(
-        store_id=store_id, before=before, after=after, delta_pct=round(delta, 1)
+        store_id=store_id,
+        before=_snapshot(by_kind["before"]),
+        after=_snapshot(by_kind["after"]),
     )

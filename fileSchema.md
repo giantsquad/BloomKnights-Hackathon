@@ -59,11 +59,10 @@ perigee/
     ├── src/
     │   ├── App.jsx
     │   ├── components/
-    │   │   ├── ImageCompare.jsx    # satellite before/after + bounding boxes
+    │   │   ├── ImageCompare.jsx    # satellite before/after imagery
+    │   │   ├── JetMap.jsx          # jet position map
     │   │   ├── TrendsChart.jsx     # NEW: replaces LiveCount.jsx — search
-    │   │                           # interest over time chart
-    │   │   ├── JetMap.jsx
-    │   │   ├── EdgarTimeline.jsx   # the money-shot panel
-    │   │   ├── Narrative.jsx
-    │   │   └── PaywallModal.jsx
-    │   └── api.js
+    │   │   ├── EdgarTimeline.jsx   # the "Day 0 vs Day X" panel — your money shot
+    │   │   ├── Narrative.jsx       # Gemini output display
+    │   │   └── PaywallModal.jsx    # pricing tiers
+    │   └── api.js                  # fetch calls to backend, matches schemas.py

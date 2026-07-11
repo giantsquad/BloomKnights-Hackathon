@@ -32,9 +32,9 @@ why. Do not invent facts not present in the payload.
 
 Store: {store_name} ({company}, {ticker}) — {city}, {state}
 
-Satellite (parking-lot vehicle detection):
-- {before_date}: {before_count} vehicles
-- {after_date}: {after_count} vehicles ({delta_pct:+.1f}%)
+Satellite imagery (before/after capture of the site):
+- Before: {before_date}
+- After: {after_date}
 
 Google Search Trends ("{query}", {region}):
 - Recent weekly interest: {trend_tail}
@@ -84,9 +84,8 @@ def _render_prompt(p: dict) -> str:
     return PROMPT_TEMPLATE.format(
         store_name=p["store"]["name"], company=p["store"]["company"],
         ticker=p["store"]["ticker"], city=p["store"]["city"], state=p["store"]["state"],
-        before_date=sat.before.captured_at, before_count=sat.before.vehicle_count,
-        after_date=sat.after.captured_at, after_count=sat.after.vehicle_count,
-        delta_pct=sat.delta_pct, query=trends.query, region=trends.region,
+        before_date=sat.before.captured_at, after_date=sat.after.captured_at,
+        query=trends.query, region=trends.region,
         trend_tail=trend_tail, spike=trends.spike_detected,
         jet_lines=jet_lines, signal_date=edgar.signal_date,
         filing_lines=filing_lines, lead_days=edgar.lead_days,
@@ -95,20 +94,19 @@ def _render_prompt(p: dict) -> str:
 
 def _confidence(p: dict) -> str:
     fired = sum([
-        abs(p["satellite"].delta_pct) >= 25,
         p["trends"].spike_detected,
         p["jets"].proximity_flag,
     ])
-    return {0: "low", 1: "low", 2: "medium", 3: "high"}[fired]
+    return {0: "low", 1: "medium", 2: "high"}[fired]
 
 
 def _fallback_thesis(p: dict) -> str:
     sat, trends, jets, edgar = p["satellite"], p["trends"], p["jets"], p["edgar"]
     store = p["store"]
     parts = [
-        f"Satellite imagery of {store['name']} ({store['ticker']}) shows lot occupancy "
-        f"moving from {sat.before.vehicle_count} vehicles on {sat.before.captured_at} to "
-        f"{sat.after.vehicle_count} on {sat.after.captured_at} ({sat.delta_pct:+.1f}%)."
+        f"Satellite imagery of {store['name']} ({store['ticker']}) captures the site on "
+        f"{sat.before.captured_at} and again on {sat.after.captured_at}, giving a visual "
+        f"before/after of on-the-ground activity at the location."
     ]
     if trends.spike_detected:
         parts.append(
