@@ -6,7 +6,6 @@ rows with real pipeline output as their pieces come online; the shapes here
 match schemas.py exactly.
 """
 
-import json
 import sqlite3
 from pathlib import Path
 
@@ -30,9 +29,7 @@ CREATE TABLE IF NOT EXISTS satellite_snapshots (
     store_id INTEGER NOT NULL REFERENCES stores(id),
     kind TEXT NOT NULL CHECK (kind IN ('before', 'after')),
     captured_at TEXT NOT NULL,
-    image_url TEXT NOT NULL,
-    vehicle_count INTEGER NOT NULL,
-    boxes_json TEXT NOT NULL DEFAULT '[]'
+    image_url TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS trend_points (
@@ -98,25 +95,13 @@ STORES = [
     },
 ]
 
-def _boxes(count: int, seed: int) -> str:
-    """Deterministic fake YOLO boxes spread across the lot, normalized 0-1."""
-    boxes = []
-    for i in range(min(count, 14)):  # cap what we draw; count is the real number
-        x = ((seed * 37 + i * 61) % 83) / 100
-        y = ((seed * 53 + i * 29) % 78) / 100
-        boxes.append({
-            "x": round(x, 3), "y": round(y, 3), "w": 0.045, "h": 0.03,
-            "label": "vehicle", "confidence": round(0.62 + ((seed + i * 7) % 33) / 100, 2),
-        })
-    return json.dumps(boxes)
-
 SATELLITE = {
-    1: [("before", "2026-05-14", "/samples/store1_before.jpg", 118),
-        ("after",  "2026-06-29", "/samples/store1_after.jpg", 212)],
-    2: [("before", "2026-05-20", "/samples/store2_before.jpg", 96),
-        ("after",  "2026-06-28", "/samples/store2_after.jpg", 141)],
-    3: [("before", "2026-05-11", "/samples/store3_before.jpg", 104),
-        ("after",  "2026-06-30", "/samples/store3_after.jpg", 89)],
+    1: [("before", "2026-05-14", "/samples/store1_before.jpg"),
+        ("after",  "2026-06-29", "/samples/store1_after.jpg")],
+    2: [("before", "2026-05-20", "/samples/store2_before.jpg"),
+        ("after",  "2026-06-28", "/samples/store2_after.jpg")],
+    3: [("before", "2026-05-11", "/samples/store3_before.jpg"),
+        ("after",  "2026-06-30", "/samples/store3_after.jpg")],
 }
 
 TRENDS = {
@@ -193,11 +178,11 @@ def init_db() -> None:
                 s,
             )
         for store_id, snaps in SATELLITE.items():
-            for kind, captured_at, image_url, count in snaps:
+            for kind, captured_at, image_url in snaps:
                 conn.execute(
-                    "INSERT INTO satellite_snapshots (store_id, kind, captured_at, image_url, vehicle_count, boxes_json)"
-                    " VALUES (?, ?, ?, ?, ?, ?)",
-                    (store_id, kind, captured_at, image_url, count, _boxes(count, store_id)),
+                    "INSERT INTO satellite_snapshots (store_id, kind, captured_at, image_url)"
+                    " VALUES (?, ?, ?, ?)",
+                    (store_id, kind, captured_at, image_url),
                 )
         for store_id, (query, region, points) in TRENDS.items():
             conn.execute("INSERT INTO trend_meta VALUES (?, ?, ?)", (store_id, query, region))

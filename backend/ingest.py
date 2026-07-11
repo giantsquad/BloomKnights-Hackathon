@@ -8,9 +8,7 @@ Usage from a script anywhere in the repo (ml/, ingestion/, signals/):
 
     ingest.replace_satellite(
         store_id=1, kind="after", captured_at="2026-07-11",
-        image_url="/samples/store1_after.jpg", vehicle_count=187,
-        boxes=[{"x": 0.31, "y": 0.44, "w": 0.05, "h": 0.03,
-                "label": "vehicle", "confidence": 0.91}],
+        image_url="/samples/store1_after.jpg",
     )
     ingest.replace_trends(1, "walmart orlando", "US-FL",
                           [("2026-06-28", 100), ("2026-07-05", 91)])
@@ -21,21 +19,17 @@ the store, not a delta. Writes persist across backend restarts; run reset()
 to wipe back to the demo seed.
 """
 
-import json
-
 from database import DB_PATH, get_conn, init_db
-from schemas import BoundingBox, Filing, JetEvent, TrendPoint
+from schemas import Filing, JetEvent, TrendPoint
 
 
-def replace_satellite(store_id, kind, captured_at, image_url, vehicle_count, boxes):
+def replace_satellite(store_id, kind, captured_at, image_url):
     """Replace one snapshot (kind: 'before' or 'after') for a store.
 
-    boxes: list of dicts with x, y, w, h (normalized 0-1), label, confidence.
     Remember to put the actual image file at frontend/public/<image_url>.
     """
     if kind not in ("before", "after"):
         raise ValueError("kind must be 'before' or 'after'")
-    validated = [BoundingBox(**b).model_dump() for b in boxes]
     init_db()
     conn = get_conn()
     try:
@@ -44,9 +38,9 @@ def replace_satellite(store_id, kind, captured_at, image_url, vehicle_count, box
             (store_id, kind),
         )
         conn.execute(
-            "INSERT INTO satellite_snapshots (store_id, kind, captured_at, image_url,"
-            " vehicle_count, boxes_json) VALUES (?, ?, ?, ?, ?, ?)",
-            (store_id, kind, captured_at, image_url, vehicle_count, json.dumps(validated)),
+            "INSERT INTO satellite_snapshots (store_id, kind, captured_at, image_url)"
+            " VALUES (?, ?, ?, ?)",
+            (store_id, kind, captured_at, image_url),
         )
         conn.commit()
     finally:

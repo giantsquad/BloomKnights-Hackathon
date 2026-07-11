@@ -53,7 +53,7 @@ perigee/
     ├── src/
     │   ├── App.jsx
     │   ├── components/
-    │   │   ├── ImageCompare.jsx    # satellite before/after + bounding boxes
+    │   │   ├── ImageCompare.jsx    # satellite before/after imagery
     │   │   ├── LiveCount.jsx       # CCTV live count panel
     │   │   ├── JetMap.jsx          # jet position map
     │   │   ├── EdgarTimeline.jsx   # the "Day 0 vs Day X" panel — your money shot

@@ -23,29 +23,15 @@ class Store(BaseModel):
 
 # ---- /api/satellite --------------------------------------------------------
 
-class BoundingBox(BaseModel):
-    # Normalized 0-1 coordinates relative to the image, so the frontend can
-    # overlay them at any render size.
-    x: float
-    y: float
-    w: float
-    h: float
-    label: str
-    confidence: float
-
-
 class SatelliteSnapshot(BaseModel):
     captured_at: str  # ISO date
     image_url: str    # served from frontend/public/samples/
-    vehicle_count: int
-    boxes: list[BoundingBox]
 
 
 class SatelliteResponse(BaseModel):
     store_id: int
     before: SatelliteSnapshot
     after: SatelliteSnapshot
-    delta_pct: float  # change in vehicle count, before -> after
 
 
 # ---- /api/trends -----------------------------------------------------------
