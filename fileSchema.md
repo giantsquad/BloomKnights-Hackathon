@@ -1,52 +1,58 @@
 perigee/
 │
-├── README.md                      # Sally owns final polish, hour 11
-├── .env.example                   # API keys template (Gemini, OpenSky client_id/secret)
+├── README.md
+├── .env.example                   # Gemini key, OpenSky client_id/secret
+│                                   # (no key needed for Trends or EDGAR)
 ├── .gitignore                     # .env, __pycache__, node_modules, *.db
 │
 ├── backend/                       # Sameer's domain (FastAPI + SQLite)
-│   ├── main.py                    # FastAPI app entrypoint, route registration
-│   ├── database.py                # SQLite connection + schema init
-│   ├── perigee.db                 # SQLite file (gitignored, created at runtime)
+│   ├── main.py
+│   ├── database.py
+│   ├── perigee.db                 # gitignored, created at runtime
 │   │
 │   ├── routes/
-│   │   ├── satellite.py           # /api/satellite endpoints — serves Dominic's output
-│   │   ├── cctv.py                # /api/cctv endpoints — live count polling
-│   │   ├── jets.py                # /api/jets endpoints — serves Sally's OpenSky data
-│   │   ├── edgar.py                # /api/edgar endpoints — filing timeline
+│   │   ├── satellite.py           # /api/satellite — serves Dominic's output
+│   │   ├── trends.py               # /api/trends — serves Sally's Google Trends data
+│   │   ├── jets.py                # /api/jets — serves Sally's OpenSky data
+│   │   ├── edgar.py                # /api/edgar — filing timeline
 │   │   └── narrative.py           # /api/narrative — triggers Gemini call
 │   │
-│   └── schemas.py                 # Shared Pydantic models — THE shared contract
+│   └── schemas.py                 # Shared Pydantic models — the contract
 │                                   # everyone codes against, defined hour 1
 │
-├── ml/                             # Dominic's domain (detection pipelines)
+├── ml/                             # Dominic's domain (detection, satellite only now)
 │   ├── detect_satellite.py        # YOLOv8 on static NAIP images → JSON
-│   ├── detect_cctv.py             # YOLOv8 on live FL511 frame → JSON
 │   ├── models/
-│   │   └── yolov8n.pt             # pretrained weights (gitignored if large, download script instead)
+│   │   └── yolov8n.pt
 │   └── sample_images/
-│       ├── site_before.jpg        # pre-downloaded NAIP images
+│       ├── site_before.jpg
 │       └── site_after.jpg
 │
 ├── signals/                        # Nelson's domain (fusion + prediction math)
-│   ├── fusion.py                  # regression: calibrate CCTV against satellite
+│   ├── fusion.py                  # NOW: calibrates Trends interest against
+│                                   # satellite ground-truth (replaces old CCTV fusion)
 │   ├── jet_proximity.py           # haversine distance + time-window flagging
-│   ├── activity_score.py          # combines all signals into one score
-│   └── config.py                  # locked CIKs, site coordinates, tail numbers —
-│                                   # single source of truth, set hour 1, don't touch after
+│   ├── activity_score.py          # combines satellite + trends + jets into one score
+│   └── config.py                  # locked CIKs, site coordinates, tail numbers,
+│                                   # search terms for Trends — single source of truth
 │
 ├── ingestion/                      # Sally's domain (external API plumbing)
 │   ├── opensky_client.py          # OAuth token handling + refresh logic
-│   ├── fetch_jets.py               # pull tail-number positions on a loop
-│   ├── edgar_client.py             # User-Agent header, CIK submissions pull
-│   ├── fetch_filings.py           # Form 4 / 8-K extraction, filing-lag calc
+│   ├── fetch_jets.py
+│   ├── trends_client.py           # NEW: pytrends wrapper, handles the unofficial-
+│                                   # API instability (retry/backoff logic)
+│   ├── fetch_trends.py            # NEW: pulls interest-over-time for locked
+│                                   # company/product search terms → JSON
+│   ├── edgar_client.py
+│   ├── fetch_filings.py
 │   └── fallback/
-│       ├── cached_snapshot.json   # safety-net data if live APIs fail
-│       └── demo_backup.mp4        # recorded full-flow video, safety net
+│       ├── cached_snapshot.json   # now includes a cached Trends pull too —
+│                                   # important since pytrends can be flaky live
+│       └── demo_backup.mp4
 │
 ├── gemini/                         # Dominic + Nelson pair here (hr 7)
-│   └── generate_narrative.py      # prompt template + API call, takes
-│                                   # combined signal payload → written thesis
+│   └── generate_narrative.py      # payload now: satellite counts + trends
+│                                   # interest + jet events + EDGAR dates
 │
 └── frontend/                       # Sameer's domain (React)
     ├── package.json
@@ -54,9 +60,10 @@ perigee/
     │   ├── App.jsx
     │   ├── components/
     │   │   ├── ImageCompare.jsx    # satellite before/after + bounding boxes
-    │   │   ├── LiveCount.jsx       # CCTV live count panel
-    │   │   ├── JetMap.jsx          # jet position map
-    │   │   ├── EdgarTimeline.jsx   # the "Day 0 vs Day X" panel — your money shot
-    │   │   ├── Narrative.jsx       # Gemini output display
-    │   │   └── PaywallModal.jsx    # pricing tiers
-    │   └── api.js                  # fetch calls to backend, matches schemas.py
+    │   │   ├── TrendsChart.jsx     # NEW: replaces LiveCount.jsx — search
+    │   │                           # interest over time chart
+    │   │   ├── JetMap.jsx
+    │   │   ├── EdgarTimeline.jsx   # the money-shot panel
+    │   │   ├── Narrative.jsx
+    │   │   └── PaywallModal.jsx
+    │   └── api.js
