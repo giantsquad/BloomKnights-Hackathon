@@ -67,7 +67,7 @@ export default function App() {
   return (
     <div className="app">
       <header className="topbar">
-        <div className="logo-slot">PERIGEE</div>
+        <img className="logo-slot" src="/KaleidoscopeWordmarkWhite_1.png" alt="Perigee" />
         <button
           type="button"
           className="upgrade-btn"

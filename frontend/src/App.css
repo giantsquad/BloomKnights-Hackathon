@@ -95,19 +95,10 @@
 }
 
 .logo-slot {
-  font-family: var(--mono);
-  font-size: 15px;
-  font-weight: 600;
-  letter-spacing: 0.32em;
-  color: var(--text-h);
+  height: 28px;
+  width: auto;
+  display: block;
   user-select: none;
-}
-
-.logo-slot::before {
-  content: '◉ ';
-  color: var(--accent);
-  letter-spacing: 0;
-  margin-right: 6px;
 }
 
 .upgrade-btn {
